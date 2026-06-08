@@ -24,3 +24,6 @@ Thumbs.db
 
 # Wokwi
 *.wokwi-user.json
+# Reports & videos
+*.pdf
+*.mp4   
