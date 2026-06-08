@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart Energy — Dashboard ML</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0b0e14;
+      --bg2:       #111520;
+      --bg3:       #181d2a;
+      --border:    rgba(255,255,255,0.07);
+      --accent:    #00d4a1;
+      --accent2:   #3b82f6;
+      --danger:    #f43f5e;
+      --warning:   #f59e0b;
+      --text:      #e8ecf4;
+      --muted:     #6b7a99;
+      --font-head: 'Syne', sans-serif;
+      --font-mono: 'DM Mono', monospace;
+      --radius:    12px;
+      --radius-sm: 8px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-mono);
+      font-size: 14px;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* GRID BG */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,212,161,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,212,161,0.025) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .app { position: relative; z-index: 1; max-width: 1280px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
+    /* ── HEADER ── */
+    header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 2.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo-group { display: flex; flex-direction: column; gap: 4px; }
+
+    .logo {
+      font-family: var(--font-head);
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      line-height: 1;
+    }
+    .logo span { color: var(--accent); }
+
+    .subtitle {
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .header-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 5px 12px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .pill .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: blink 2s infinite;
+    }
+    @keyframes blink { 0%,100%{ opacity:1; } 50%{ opacity:0.3; } }
+
+    /* ── KPI ROW ── */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .kpi {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      position: relative;
+      overflow: hidden;
+      animation: fadeUp 0.4s ease both;
+    }
+    .kpi::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+    }
+    .kpi.green::before { background: var(--accent); }
+    .kpi.blue::before  { background: var(--accent2); }
+    .kpi.red::before   { background: var(--danger); }
+    .kpi.amber::before { background: var(--warning); }
+
+    .kpi-label { font-size: 10px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px; }
+    .kpi-value { font-family: var(--font-head); font-size: 32px; font-weight: 700; line-height: 1; color: var(--text); }
+    .kpi-value.green { color: var(--accent); }
+    .kpi-value.red   { color: var(--danger); }
+    .kpi-sub  { font-size: 11px; color: var(--muted); margin-top: 4px; }
+    .kpi-icon {
+      position: absolute;
+      top: 1rem; right: 1.2rem;
+      font-size: 28px;
+      opacity: 0.08;
+      font-family: var(--font-head);
+      font-weight: 800;
+    }
+
+    @keyframes fadeUp { from { opacity:0; transform: translateY(16px); } to { opacity:1; transform: none; } }
+
+    /* ── CARDS ── */
+    .card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+    }
+    .card-title {
+      font-family: var(--font-head);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card-title::before {
+      content: '';
+      display: inline-block;
+      width: 3px; height: 14px;
+      background: var(--accent);
+      border-radius: 2px;
+    }
+
+    /* ── MAIN GRID ── */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    @media(max-width:900px){ .main-grid { grid-template-columns: 1fr; } }
+
+    /* ── CHART ── */
+    .chart-wrap { position: relative; width: 100%; height: 260px; }
+
+    /* ── RANKING ── */
+    .rank-list { display: flex; flex-direction: column; gap: 12px; }
+    .rank-item { display: flex; flex-direction: column; gap: 4px; }
+    .rank-header { display: flex; justify-content: space-between; align-items: baseline; }
+    .rank-name { font-size: 12px; color: var(--text); }
+    .rank-stats { font-size: 11px; color: var(--muted); }
+    .rank-bar-bg { height: 4px; background: var(--bg3); border-radius: 2px; overflow: hidden; }
+    .rank-bar-fill { height: 4px; border-radius: 2px; transition: width 1s ease; }
+
+    /* ── SERIES + ANOMALY CHART ── */
+    .bottom-grid {
+      display: grid;
+      grid-template-columns: 3fr 2fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    @media(max-width:900px){ .bottom-grid { grid-template-columns: 1fr; } }
+
+    /* ── ANOMALY LIST ── */
+    .anom-list { display: flex; flex-direction: column; gap: 8px; max-height: 340px; overflow-y: auto; }
+    .anom-list::-webkit-scrollbar { width: 4px; }
+    .anom-list::-webkit-scrollbar-track { background: transparent; }
+    .anom-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .anom-item {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--danger);
+      border-radius: var(--radius-sm);
+      padding: 0.8rem 1rem;
+      animation: fadeUp 0.3s ease both;
+    }
+
+    .anom-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+    .anom-device { font-family: var(--font-head); font-size: 13px; font-weight: 600; color: var(--danger); }
+    .anom-badge {
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: rgba(244,63,94,0.12);
+      color: var(--danger);
+      border: 1px solid rgba(244,63,94,0.25);
+      padding: 2px 8px;
+      border-radius: 20px;
+    }
+    .anom-meta { font-size: 11px; color: var(--muted); margin-bottom: 6px; }
+    .anom-conseil {
+      font-size: 11px;
+      color: var(--accent);
+      padding: 5px 8px;
+      background: rgba(0,212,161,0.06);
+      border-radius: var(--radius-sm);
+    }
+    .anom-conseil::before { content: '⚡ '; }
+
+    /* ── COST TABLE ── */
+    .cost-grid {
+      display: grid;
+      grid-template-columns: repeat(3,1fr);
+      gap: 1rem;
+    }
+    @media(max-width:600px){ .cost-grid { grid-template-columns: 1fr; } }
+
+    .cost-cell {
+      text-align: center;
+      padding: 1rem;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+    }
+    .cost-period { font-size: 10px; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 6px; }
+    .cost-val { font-family: var(--font-head); font-size: 26px; font-weight: 700; color: var(--accent); }
+    .cost-unit { font-size: 10px; color: var(--muted); }
+
+    /* ── FOOTER ── */
+    footer {
+      margin-top: 2.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+      font-size: 11px;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .badge-model {
+      background: rgba(59,130,246,0.1);
+      color: var(--accent2);
+      border: 1px solid rgba(59,130,246,0.2);
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 10px;
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo-group">
+      <div class="logo">Smart<span>Energy</span></div>
+      <div class="subtitle">Machine Learning · Isolation Forest · Analyse anomalies</div>
+    </div>
+    <div class="header-right">
+      <div class="pill"><span class="dot"></span> Modèle actif</div>
+      <div class="pill">contamination = 0.05</div>
+      <div class="pill" id="now-pill">—</div>
+    </div>
+  </header>
+
+  <!-- KPIs -->
+  <div class="kpi-grid">
+    <div class="kpi green" style="animation-delay:0.0s">
+      <div class="kpi-label">Total mesures</div>
+      <div class="kpi-value" id="kpi-total">—</div>
+      <div class="kpi-sub">relevés analysés</div>
+      <div class="kpi-icon">N</div>
+    </div>
+    <div class="kpi red" style="animation-delay:0.08s">
+      <div class="kpi-label">Anomalies</div>
+      <div class="kpi-value red" id="kpi-anom">—</div>
+      <div class="kpi-sub" id="kpi-taux">Taux — %</div>
+      <div class="kpi-icon">!</div>
+    </div>
+    <div class="kpi blue" style="animation-delay:0.16s">
+      <div class="kpi-label">Consommation moy.</div>
+      <div class="kpi-value" id="kpi-power">—</div>
+      <div class="kpi-sub">Watts</div>
+      <div class="kpi-icon">W</div>
+    </div>
+    <div class="kpi amber" style="animation-delay:0.24s">
+      <div class="kpi-label">Coût mensuel est.</div>
+      <div class="kpi-value green" id="kpi-month">—</div>
+      <div class="kpi-sub">MAD · 1.20 MAD/kWh</div>
+      <div class="kpi-icon">₭</div>
+    </div>
+  </div>
+
+  <!-- MAIN: BAR CHART + RANKING -->
+  <div class="main-grid">
+    <div class="card">
+      <div class="card-title">Consommation moyenne par appareil (W)</div>
+      <div class="chart-wrap"><canvas id="barChart" role="img" aria-label="Consommation moyenne par appareil en watts"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Classement</div>
+      <div class="rank-list" id="rank-list"></div>
+    </div>
+  </div>
+
+  <!-- BOTTOM: SERIES + ANOMALIES -->
+  <div class="bottom-grid">
+    <div class="card">
+      <div class="card-title">Série temporelle — total (W) &amp; anomalies</div>
+      <div class="chart-wrap"><canvas id="lineChart" role="img" aria-label="Série temporelle consommation totale et anomalies"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Anomalies détectées</div>
+      <div class="anom-list" id="anom-list"></div>
+    </div>
+  </div>
+
+  <!-- COST SECTION -->
+  <div class="card" style="margin-bottom:1rem;">
+    <div class="card-title">Estimation des coûts — prix : 1.20 MAD/kWh</div>
+    <div class="cost-grid">
+      <div class="cost-cell">
+        <div class="cost-period">Coût horaire</div>
+        <div class="cost-val" id="c-hour">—</div>
+        <div class="cost-unit">MAD / heure</div>
+      </div>
+      <div class="cost-cell">
+        <div class="cost-period">Coût journalier</div>
+        <div class="cost-val" id="c-day">—</div>
+        <div class="cost-unit">MAD / jour</div>
+      </div>
+      <div class="cost-cell">
+        <div class="cost-period">Coût mensuel</div>
+        <div class="cost-val" id="c-month">—</div>
+        <div class="cost-unit">MAD / mois</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <span>smart_energy_db · collection energy_data · MongoDB localhost:27017</span>
+    <span class="badge-model">IsolationForest · contamination=0.05 · random_state=42</span>
+  </footer>
+
+</div>
+
+<script>
+/* ────────────────────────────────────────────
+   SIMULATION DES DONNÉES (remplacer par fetch())
+   ──────────────────────────────────────────── */
+
+const DEVICES = ['lamp','tv','fan','pc','ac','wm'];
+const LABELS  = { lamp:'Lampe', tv:'Télévision', fan:'Ventilateur', pc:'PC', ac:'Climatisation', wm:'Machine à laver' };
+const BASE    = { lamp:40, tv:120, fan:80, pc:200, ac:1500, wm:500 };
+const CONSEILS = {
+  ac:   'Réduire la climatisation ou augmenter la température cible.',
+  wm:   'Reporter l\'utilisation en dehors des heures de pointe.',
+  pc:   'Vérifier les applications actives sur le PC.',
+  tv:   'Éteindre la télévision lorsqu\'elle n\'est pas utilisée.',
+  fan:  'Vérifier si le ventilateur fonctionne inutilement.',
+  lamp: 'Vérifier les appareils électriques actifs.'
+};
+const COLORS_BAR = ['#00d4a1','#3b82f6','#f59e0b','#a78bfa','#f43f5e','#34d399'];
+
+function simData(n) {
+  const rows = [];
+  for (let i = 0; i < n; i++) {
+    const r = { timestamp: new Date(Date.now() - i * 3600000).toISOString(), anomaly: 'Normal' };
+    DEVICES.forEach(d => { r[d] = +(BASE[d] * (0.7 + Math.random() * 0.6)).toFixed(1); });
+    r.total = +(DEVICES.reduce((s, d) => s + r[d], 0)).toFixed(1);
+    rows.push(r);
+  }
+  // Injection anomalies (comme contamination=0.05)
+  [3, 7, 14, 21, 28, 35].forEach(i => {
+    if (i < rows.length) {
+      const spike = DEVICES[Math.floor(Math.random() * DEVICES.length)];
+      rows[i][spike] = +(rows[i][spike] * 3.8).toFixed(1);
+      rows[i].total  = +(DEVICES.reduce((s, d) => s + rows[i][d], 0)).toFixed(1);
+      rows[i].anomaly = 'Anomalie';
+    }
+  });
+  return rows;
+}
+
+/* ── DATA ── */
+/* ── DATA ── */
+async function loadData() {
+
+    const dashboard =
+        await fetch("http://127.0.0.1:5000/api/dashboard")
+        .then(r => r.json());
+
+    const history =
+        await fetch("http://127.0.0.1:5000/api/history")
+        .then(r => r.json());
+
+    const anomalies =
+        await fetch("http://127.0.0.1:5000/api/anomalies")
+        .then(r => r.json());
+
+    console.log(dashboard);
+    console.log(history);
+    console.log(anomalies);
+
+    // ==========================
+    // KPI
+    // ==========================
+
+    document.getElementById("kpi-total").textContent =
+        dashboard.total_mesures;
+
+    document.getElementById("kpi-anom").textContent =
+        dashboard.nb_anomalies;
+
+    document.getElementById("kpi-taux").textContent =
+        "Taux : " + dashboard.taux_anomalies + "%";
+
+    document.getElementById("kpi-power").textContent =
+        dashboard.consommation_moyenne + " W";
+
+    document.getElementById("kpi-month").textContent =
+        dashboard.cout_mensuel + " MAD";
+
+    // ==========================
+    // COÛTS
+    // ==========================
+
+    const cHour =
+        (dashboard.consommation_moyenne / 1000 * 1.20).toFixed(2);
+
+    const cDay =
+        (dashboard.consommation_moyenne / 1000 * 24 * 1.20).toFixed(2);
+
+    document.getElementById("c-hour").textContent = cHour;
+    document.getElementById("c-day").textContent = cDay;
+    document.getElementById("c-month").textContent =
+        dashboard.cout_mensuel;
+
+    // ==========================
+    // DONNÉES HISTORIQUES
+    // ==========================
+
+    const df = history;
+
+    // ==========================
+    // MOYENNES APPAREILS
+    // ==========================
+
+    const devMeans = {};
+
+    DEVICES.forEach(d => {
+
+        devMeans[d] =
+            +(df.reduce((sum, row) => sum + row[d], 0) / df.length)
+            .toFixed(1);
+
+    });
+
+    const sorted =
+        [...DEVICES].sort(
+            (a, b) => devMeans[b] - devMeans[a]
+        );
+
+    const totalMean =
+        DEVICES.reduce(
+            (sum, d) => sum + devMeans[d],
+            0
+        );
+
+    const maxVal =
+        devMeans[sorted[0]];
+
+    // ==========================
+    // BAR CHART
+    // ==========================
+
+    new Chart(document.getElementById('barChart'), {
+        type: 'bar',
+        data: {
+            labels: DEVICES.map(d => LABELS[d]),
+            datasets: [{
+                label: 'Moy. (W)',
+                data: DEVICES.map(d => devMeans[d]),
+                backgroundColor: COLORS_BAR,
+                borderRadius: 5,
+                borderSkipped: false
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+
+    // ==========================
+    // RANKING
+    // ==========================
+
+    const rl =
+        document.getElementById("rank-list");
+
+    rl.innerHTML = "";
+
+    sorted.forEach((d, i) => {
+
+        const pct =
+            ((devMeans[d] / totalMean) * 100)
+            .toFixed(1);
+
+        const barW =
+            ((devMeans[d] / maxVal) * 100)
+            .toFixed(1);
+
+        rl.innerHTML += `
+        <div class="rank-item">
+            <div class="rank-header">
+                <span class="rank-name">
+                    ${i + 1}. ${LABELS[d]}
+                </span>
+                <span class="rank-stats">
+                    ${devMeans[d]} W · ${pct}%
+                </span>
+            </div>
+            <div class="rank-bar-bg">
+                <div
+                    class="rank-bar-fill"
+                    style="width:${barW}%;background:${COLORS_BAR[i]}"
+                ></div>
+            </div>
+        </div>`;
+    });
+
+    // ==========================
+    // COURBE TEMPORELLE
+    // ==========================
+
+    const labels =
+        df.map((row, index) => "T" + index);
+
+    const totals =
+        df.map(row => row.total);
+
+    new Chart(document.getElementById('lineChart'), {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Total (W)',
+                data: totals,
+                borderColor: '#3b82f6',
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+
+    // ==========================
+    // ANOMALIES
+    // ==========================
+
+    const al =
+        document.getElementById("anom-list");
+
+    al.innerHTML = "";
+
+    anomalies.forEach((row, idx) => {
+
+        al.innerHTML += `
+        <div class="anom-item">
+            <div class="anom-top">
+                <span class="anom-device">
+                    ${row.device}
+                </span>
+                <span class="anom-badge">
+                    anomalie
+                </span>
+            </div>
+
+            <div class="anom-meta">
+                ${row.timestamp}
+                · Total : ${row.total} W
+                · Puissance : ${row.power} W
+            </div>
+
+            <div class="anom-conseil">
+                ${row.advice}
+            </div>
+        </div>`;
+    });
+
+}
+
+/* ── DATE PILL ── */
+document.getElementById('now-pill').textContent =
+  new Date().toLocaleDateString('fr-FR', {
+      day:'2-digit',
+      month:'short',
+      year:'numeric'
+  });
+
+loadData();
+
+
+</script>
+</body>
+</html>

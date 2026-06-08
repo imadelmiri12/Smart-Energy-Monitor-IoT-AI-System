@@ -1,0 +1,158 @@
+{
+  "version": 1,
+  "author": "PFM IoT Energie",
+  "editor": "wokwi",
+  "parts": [
+    {
+      "type": "board-esp32-devkit-c-v4",
+      "id": "esp",
+      "top": 0,
+      "left": -100,
+      "attrs": {
+        "env": "micropython-20231005-v1.21.0"
+      }
+    },
+
+    {
+      "type": "board-ssd1306",
+      "id": "oled1",
+      "top": 220,
+      "left": 120,
+      "attrs": {}
+    },
+
+    {
+      "type": "wokwi-slide-switch",
+      "id": "swLamp",
+      "top": -140,
+      "left": 120,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-slide-switch",
+      "id": "swTV",
+      "top": -80,
+      "left": 120,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-slide-switch",
+      "id": "swFan",
+      "top": -20,
+      "left": 120,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-slide-switch",
+      "id": "swPC",
+      "top": 40,
+      "left": 120,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-slide-switch",
+      "id": "swAC",
+      "top": 100,
+      "left": 120,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-slide-switch",
+      "id": "swWM",
+      "top": 160,
+      "left": 120,
+      "attrs": {}
+    },
+
+    {
+      "type": "wokwi-led",
+      "id": "ledLamp",
+      "top": -140,
+      "left": 260,
+      "attrs": { "color": "yellow" }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "ledTV",
+      "top": -80,
+      "left": 260,
+      "attrs": { "color": "red" }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "ledFan",
+      "top": -20,
+      "left": 260,
+      "attrs": { "color": "green" }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "ledPC",
+      "top": 40,
+      "left": 260,
+      "attrs": { "color": "blue" }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "ledAC",
+      "top": 100,
+      "left": 260,
+      "attrs": { "color": "cyan" }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "ledWM",
+      "top": 160,
+      "left": 260,
+      "attrs": { "color": "orange" }
+    }
+  ],
+
+  "connections": [
+    [ "esp:TX", "$serialMonitor:RX", "", [] ],
+    [ "esp:RX", "$serialMonitor:TX", "", [] ],
+
+    [ "oled1:SCL", "esp:22", "green", [] ],
+    [ "oled1:SDA", "esp:21", "blue", [] ],
+    [ "oled1:VCC", "esp:3V3", "red", [] ],
+    [ "oled1:GND", "esp:GND.2", "black", [] ],
+
+    [ "swLamp:1", "esp:13", "yellow", [] ],
+    [ "swLamp:2", "esp:GND.2", "black", [] ],
+
+    [ "swTV:1", "esp:12", "yellow", [] ],
+    [ "swTV:2", "esp:GND.2", "black", [] ],
+
+    [ "swFan:1", "esp:14", "yellow", [] ],
+    [ "swFan:2", "esp:GND.2", "black", [] ],
+
+    [ "swPC:1", "esp:27", "yellow", [] ],
+    [ "swPC:2", "esp:GND.2", "black", [] ],
+
+    [ "swAC:1", "esp:26", "yellow", [] ],
+    [ "swAC:2", "esp:GND.2", "black", [] ],
+
+    [ "swWM:1", "esp:25", "yellow", [] ],
+    [ "swWM:2", "esp:GND.2", "black", [] ],
+
+    [ "ledLamp:A", "esp:15", "yellow", [] ],
+    [ "ledLamp:C", "esp:GND.2", "black", [] ],
+
+    [ "ledTV:A", "esp:2", "red", [] ],
+    [ "ledTV:C", "esp:GND.2", "black", [] ],
+
+    [ "ledFan:A", "esp:4", "green", [] ],
+    [ "ledFan:C", "esp:GND.2", "black", [] ],
+
+    [ "ledPC:A", "esp:16", "blue", [] ],
+    [ "ledPC:C", "esp:GND.2", "black", [] ],
+
+    [ "ledAC:A", "esp:17", "cyan", [] ],
+    [ "ledAC:C", "esp:GND.2", "black", [] ],
+
+    [ "ledWM:A", "esp:5", "orange", [] ],
+    [ "ledWM:C", "esp:GND.2", "black", [] ]
+  ],
+
+  "dependencies": {}
+}

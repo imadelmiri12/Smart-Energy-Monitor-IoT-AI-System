@@ -1,0 +1,464 @@
+[
+    {
+        "id": "68622e53a20bfeac",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "9d522b225910b1c5",
+        "type": "group",
+        "z": "68622e53a20bfeac",
+        "style": {
+            "stroke": "#999999",
+            "stroke-opacity": "1",
+            "fill": "none",
+            "fill-opacity": "1",
+            "label": true,
+            "label-position": "nw",
+            "color": "#a4a4a4"
+        },
+        "nodes": [
+            "a3281b577d71139a"
+        ],
+        "x": 514,
+        "y": 459,
+        "w": 152,
+        "h": 82
+    },
+    {
+        "id": "871374ce814012a9",
+        "type": "mqtt in",
+        "z": "68622e53a20bfeac",
+        "name": "",
+        "topic": "home/energy/data",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "f80624c444782bfc",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 210,
+        "y": 180,
+        "wires": [
+            [
+                "e7c0f9036b1f30a1",
+                "58ec8538aeb8ae3d",
+                "fdbe6aa495dc24a0",
+                "a3281b577d71139a",
+                "11ee58ae00d9de1e"
+            ]
+        ]
+    },
+    {
+        "id": "3c0bf608f4991b7b",
+        "type": "ui_gauge",
+        "z": "68622e53a20bfeac",
+        "name": "",
+        "group": "93b54f1d21e14f35",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "Consommation Totale",
+        "label": "W",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "5000",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 920,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "e7c0f9036b1f30a1",
+        "type": "function",
+        "z": "68622e53a20bfeac",
+        "name": "function 1",
+        "func": "msg.payload = msg.payload.total;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 600,
+        "y": 280,
+        "wires": [
+            [
+                "3c0bf608f4991b7b",
+                "3818ada6edd23102",
+                "e46371ec59acc518"
+            ]
+        ]
+    },
+    {
+        "id": "3818ada6edd23102",
+        "type": "ui_chart",
+        "z": "68622e53a20bfeac",
+        "name": "",
+        "group": "93b54f1d21e14f35",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "label": "Variation de la consommation ",
+        "chartType": "line",
+        "legend": "true",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "0",
+        "ymax": "5000",
+        "removeOlder": "10",
+        "removeOlderPoints": "",
+        "removeOlderUnit": "60",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#1f77b4",
+            "#aec7e8",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 960,
+        "y": 360,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "e46371ec59acc518",
+        "type": "debug",
+        "z": "68622e53a20bfeac",
+        "name": "debug 1",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1180,
+        "y": 480,
+        "wires": []
+    },
+    {
+        "id": "7c65d19770013a8a",
+        "type": "function",
+        "z": "68622e53a20bfeac",
+        "name": "Surconsommation",
+        "func": "msg.payload = \"⚠ Surconsommation détectée (\" + msg.payload.total + \" W)\";\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 910,
+        "y": 660,
+        "wires": [
+            [
+                "09d5cac524ef45de"
+            ]
+        ]
+    },
+    {
+        "id": "6b465c716e18740e",
+        "type": "function",
+        "z": "68622e53a20bfeac",
+        "name": "consommation normale",
+        "func": "msg.payload = \" normale (\" + msg.payload.total + \" W)\";\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 890,
+        "y": 500,
+        "wires": [
+            [
+                "09d5cac524ef45de"
+            ]
+        ]
+    },
+    {
+        "id": "09d5cac524ef45de",
+        "type": "ui_text",
+        "z": "68622e53a20bfeac",
+        "group": "93b54f1d21e14f35",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "État énergétique",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#000000",
+        "x": 1220,
+        "y": 580,
+        "wires": []
+    },
+    {
+        "id": "58ec8538aeb8ae3d",
+        "type": "function",
+        "z": "68622e53a20bfeac",
+        "name": "Plus gros consommateur",
+        "func": "let appareils = {\n    \"Lampe\": msg.payload.lamp,\n    \"TV\": msg.payload.tv,\n    \"Ventilo\": msg.payload.fan,\n    \"PC\": msg.payload.pc,\n    \"Climatisation\": msg.payload.ac,\n    \"Machine\": msg.payload.wm\n};\n\nlet maxNom = \"\";\nlet maxVal = -1;\n\nfor (let nom in appareils) {\n    if (appareils[nom] > maxVal) {\n        maxVal = appareils[nom];\n        maxNom = nom;\n    }\n}\n\nmsg.payload =  maxNom + \" : \" + maxVal + \" W\";\n\nreturn msg;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 770,
+        "y": 820,
+        "wires": [
+            [
+                "1f1c8e209914c680"
+            ]
+        ]
+    },
+    {
+        "id": "1f1c8e209914c680",
+        "type": "ui_text",
+        "z": "68622e53a20bfeac",
+        "group": "93b54f1d21e14f35",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "Le plus grand consommateur",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#000000",
+        "x": 1100,
+        "y": 820,
+        "wires": []
+    },
+    {
+        "id": "85fd3269aeb1d94f",
+        "type": "mongodb out",
+        "z": "68622e53a20bfeac",
+        "mongodb": "524efd2bec1b8582",
+        "name": "",
+        "collection": "energy_data",
+        "payonly": true,
+        "upsert": false,
+        "multi": false,
+        "operation": "insert",
+        "x": 660,
+        "y": 940,
+        "wires": []
+    },
+    {
+        "id": "fdbe6aa495dc24a0",
+        "type": "function",
+        "z": "68622e53a20bfeac",
+        "name": "cnx au DB",
+        "func": "msg.payload.timestamp = new Date();\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 170,
+        "y": 560,
+        "wires": [
+            [
+                "1a7c7c0eb401cac9",
+                "85fd3269aeb1d94f"
+            ]
+        ]
+    },
+    {
+        "id": "a3281b577d71139a",
+        "type": "switch",
+        "z": "68622e53a20bfeac",
+        "g": "9d522b225910b1c5",
+        "name": "",
+        "property": "payload.total",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "lt",
+                "v": "3000",
+                "vt": "str"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 590,
+        "y": 500,
+        "wires": [
+            [
+                "7c65d19770013a8a",
+                "6b465c716e18740e"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "1a7c7c0eb401cac9",
+        "type": "debug",
+        "z": "68622e53a20bfeac",
+        "name": "debug 2",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 500,
+        "y": 740,
+        "wires": []
+    },
+    {
+        "id": "11ee58ae00d9de1e",
+        "type": "function",
+        "z": "68622e53a20bfeac",
+        "name": "Send To ThingsBoard",
+        "func": "msg.headers = {\n    \"Content-Type\": \"application/json\"\n};\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 620,
+        "y": 120,
+        "wires": [
+            [
+                "4bb22cdc73d3581a"
+            ]
+        ]
+    },
+    {
+        "id": "4bb22cdc73d3581a",
+        "type": "http request",
+        "z": "68622e53a20bfeac",
+        "name": "",
+        "method": "POST",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "https://thingsboard.cloud/api/v1/F0BCCFiTazPqbfRpLsTh/telemetry",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 990,
+        "y": 60,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "f80624c444782bfc",
+        "type": "mqtt-broker",
+        "name": "EMQX",
+        "broker": "broker.emqx.io",
+        "port": 1883,
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": 4,
+        "keepalive": 60,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "93b54f1d21e14f35",
+        "type": "ui_group",
+        "name": "Smart Home",
+        "tab": "59f55158190f2084",
+        "order": 5,
+        "disp": true,
+        "width": "13",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "524efd2bec1b8582",
+        "type": "mongodb",
+        "hostname": "127.0.0.1",
+        "topology": "direct",
+        "connectOptions": "",
+        "port": "27017",
+        "db": "smart_energy_db",
+        "name": ""
+    },
+    {
+        "id": "59f55158190f2084",
+        "type": "ui_tab",
+        "name": "Home",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "27c92e4e9a269281",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "node-red-dashboard": "3.6.6",
+            "node-red-node-mongodb": "0.2.5"
+        }
+    }
+]
